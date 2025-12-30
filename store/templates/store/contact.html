@@ -1,0 +1,208 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - M Cosmetics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .navbar-sticky {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .contact-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .contact-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Sticky Navbar -->
+    <nav class="navbar-sticky bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="{% url 'product_list' %}" class="text-2xl font-bold text-rose-600 hover:text-rose-700 transition">M Cosmetics</a>
+                </div>
+
+                <!-- Nav Items -->
+                <div class="hidden md:flex space-x-8">
+                    <a href="{% url 'product_list' %}" class="text-gray-700 hover:text-rose-600 transition">Home</a>
+                    <a href="{% url 'product_list' %}" class="text-gray-700 hover:text-rose-600 transition">Shop</a>
+                    <a href="{% url 'about' %}" class="text-gray-700 hover:text-rose-600 transition">About</a>
+                    <a href="{% url 'contact' %}" class="text-gray-700 hover:text-rose-600 transition font-semibold">Contact</a>
+                </div>
+
+                <!-- Right Side: User & Cart -->
+                <div class="flex items-center space-x-4">
+                    {% if user.is_authenticated %}
+                        <!-- User Greeting -->
+                        <div class="hidden md:flex items-center space-x-2">
+                            <i class="fas fa-user text-rose-600"></i>
+                            <span class="text-sm text-gray-700">{{ user.first_name|default:user.username }}</span>
+                        </div>
+                        <!-- Logout Button -->
+                        <a href="{% url 'logout' %}" class="text-gray-700 hover:text-red-600 transition text-sm font-semibold">
+                            <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                        </a>
+                    {% else %}
+                        <!-- Login/Register Buttons -->
+                        <a href="{% url 'login' %}" class="text-gray-700 hover:text-rose-600 transition text-sm font-semibold">
+                            <i class="fas fa-sign-in-alt mr-1"></i>Login
+                        </a>
+                        <a href="{% url 'register' %}" class="bg-rose-600 text-white px-4 py-2 rounded-lg hover:bg-rose-700 transition text-sm">
+                            <i class="fas fa-user-plus mr-1"></i>Register
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Page Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Get In Touch</h1>
+            <p class="text-lg text-gray-600">We'd love to hear from you. Reach out to us through any of our channels below.</p>
+        </div>
+
+        <!-- Contact Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            <!-- WhatsApp Card -->
+            <div class="contact-card bg-white rounded-lg shadow p-8 text-center">
+                <div class="mb-4">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full">
+                        <i class="fab fa-whatsapp text-3xl text-green-600"></i>
+                    </div>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">WhatsApp</h3>
+                <p class="text-gray-600 mb-4">Quick messages and instant responses</p>
+                <a href="https://wa.me/{{ contact_info.whatsapp|slice:'1:' }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-6 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition">
+                    <i class="fab fa-whatsapp mr-2"></i>Message Us
+                </a>
+                <p class="text-gray-800 font-semibold mt-4">{{ contact_info.whatsapp }}</p>
+            </div>
+
+            <!-- Cell/Phone Card -->
+            <div class="contact-card bg-white rounded-lg shadow p-8 text-center">
+                <div class="mb-4">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full">
+                        <i class="fas fa-phone text-3xl text-blue-600"></i>
+                    </div>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Call Us</h3>
+                <p class="text-gray-600 mb-4">Direct phone support</p>
+                <a href="tel:{{ contact_info.cell }}" class="inline-flex items-center justify-center px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">
+                    <i class="fas fa-phone mr-2"></i>Call Now
+                </a>
+                <p class="text-gray-800 font-semibold mt-4">{{ contact_info.cell }}</p>
+            </div>
+
+            <!-- Email Card -->
+            <div class="contact-card bg-white rounded-lg shadow p-8 text-center">
+                <div class="mb-4">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full">
+                        <i class="fas fa-envelope text-3xl text-red-600"></i>
+                    </div>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Email</h3>
+                <p class="text-gray-600 mb-4">For detailed enquiries</p>
+                <a href="mailto:{{ contact_info.email }}" class="inline-flex items-center justify-center px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition">
+                    <i class="fas fa-envelope mr-2"></i>Send Email
+                </a>
+                <p class="text-gray-800 font-semibold mt-4">{{ contact_info.email }}</p>
+            </div>
+
+            <!-- Facebook Card -->
+            <div class="contact-card bg-white rounded-lg shadow p-8 text-center">
+                <div class="mb-4">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full">
+                        <i class="fab fa-facebook text-3xl text-blue-600"></i>
+                    </div>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Facebook</h3>
+                <p class="text-gray-600 mb-4">Follow us for updates and offers</p>
+                <a href="{{ contact_info.facebook }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">
+                    <i class="fab fa-facebook mr-2"></i>Follow Us
+                </a>
+            </div>
+
+            <!-- TikTok Card -->
+            <div class="contact-card bg-white rounded-lg shadow p-8 text-center">
+                <div class="mb-4">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-black rounded-full">
+                        <i class="fab fa-tiktok text-3xl text-white"></i>
+                    </div>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">TikTok</h3>
+                <p class="text-gray-600 mb-4">See our latest content and trends</p>
+                <a href="{{ contact_info.tiktok }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-6 py-2 bg-black text-white font-semibold rounded-lg hover:bg-gray-800 transition">
+                    <i class="fab fa-tiktok mr-2"></i>Follow Us
+                </a>
+            </div>
+
+            <!-- General Enquiry Card -->
+            <div class="contact-card bg-white rounded-lg shadow p-8 text-center">
+                <div class="mb-4">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-rose-100 rounded-full">
+                        <i class="fas fa-comments text-3xl text-rose-600"></i>
+                    </div>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">General Enquiries</h3>
+                <p class="text-gray-600 mb-4">Any other questions?</p>
+                <a href="mailto:{{ contact_info.email }}" class="inline-flex items-center justify-center px-6 py-2 bg-rose-600 text-white font-semibold rounded-lg hover:bg-rose-700 transition">
+                    <i class="fas fa-paper-plane mr-2"></i>Send Message
+                </a>
+            </div>
+        </div>
+
+        <!-- Contact Info Section -->
+        <div class="bg-rose-50 rounded-lg border border-rose-200 p-8 mb-12">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Business Hours & Response Time</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Hours of Operation</h3>
+                    <ul class="space-y-2 text-gray-700">
+                        <li><span class="font-semibold">Monday - Friday:</span> 9:00 AM - 6:00 PM</li>
+                        <li><span class="font-semibold">Saturday:</span> 10:00 AM - 4:00 PM</li>
+                        <li><span class="font-semibold">Sunday:</span> Closed</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Average Response Time</h3>
+                    <ul class="space-y-2 text-gray-700">
+                        <li><span class="font-semibold">WhatsApp:</span> 1-2 hours</li>
+                        <li><span class="font-semibold">Email:</span> 24 hours</li>
+                        <li><span class="font-semibold">Phone:</span> Immediate</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back to Shop Button -->
+        <div class="text-center">
+            <a href="{% url 'product_list' %}" class="inline-flex items-center justify-center px-8 py-3 bg-rose-600 text-white font-semibold rounded-lg hover:bg-rose-700 transition">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Shop
+            </a>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="text-center">
+                <p>&copy; 2025 M Cosmetics. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

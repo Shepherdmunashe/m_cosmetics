@@ -1,0 +1,124 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - M Cosmetics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navbar -->
+    <nav class="bg-white shadow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="{% url 'product_list' %}" class="text-2xl font-bold text-rose-600">M Cosmetics</a>
+                <div class="space-x-4">
+                    <a href="{% url 'login' %}" class="text-gray-700 hover:text-rose-600">Login</a>
+                    <a href="{% url 'register' %}" class="bg-rose-600 text-white px-4 py-2 rounded-lg hover:bg-rose-700">Register</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Register Form -->
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="w-full max-w-md">
+            <!-- Card -->
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-gray-900">Create Account</h2>
+                    <p class="text-gray-600 mt-2">Join M Cosmetics today</p>
+                </div>
+
+                <!-- Messages -->
+                {% if messages %}
+                    <div class="mb-6">
+                        {% for message in messages %}
+                            <div class="p-4 rounded-lg mb-2 {% if message.tags %}bg-{{ message.tags }}-100 text-{{ message.tags }}-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Register Form -->
+                <form method="POST" class="space-y-4">
+                    {% csrf_token %}
+
+                    <!-- First Name -->
+                    <div>
+                        <label for="id_first_name" class="block text-gray-700 font-semibold mb-2">First Name (Optional)</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.first_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Last Name -->
+                    <div>
+                        <label for="id_last_name" class="block text-gray-700 font-semibold mb-2">Last Name (Optional)</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.last_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label for="id_email" class="block text-gray-700 font-semibold mb-2">Email</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.email.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Username -->
+                    <div>
+                        <label for="id_username" class="block text-gray-700 font-semibold mb-2">Username</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.username.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Password -->
+                    <div>
+                        <label for="id_password1" class="block text-gray-700 font-semibold mb-2">Password</label>
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}
+                            <p class="text-red-600 text-sm mt-1">
+                                {% for error in form.password1.errors %}
+                                    {{ error }}<br>
+                                {% endfor %}
+                            </p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div>
+                        <label for="id_password2" class="block text-gray-700 font-semibold mb-2">Confirm Password</label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.password2.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="w-full bg-rose-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-rose-700 transition mt-6">
+                        <i class="fas fa-user-plus mr-2"></i>Create Account
+                    </button>
+                </form>
+
+                <!-- Login Link -->
+                <div class="mt-6 text-center">
+                    <p class="text-gray-600">Already have an account? 
+                        <a href="{% url 'login' %}" class="text-rose-600 font-semibold hover:text-rose-700">Login here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

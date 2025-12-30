@@ -1,0 +1,551 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M Cosmetics - Premium Perfume & Cosmetics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .product-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .product-card:hover:not(.sold-out) {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        .sold-out {
+            opacity: 0.7;
+        }
+        .sold-out-badge {
+            position: absolute;
+            top-2 right-2;
+            background-color: #ef4444;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            font-size: 0.875rem;
+            z-index: 10;
+        }
+        .navbar-sticky {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-content {
+            background-color: white;
+            border-radius: 0.5rem;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .quantity-input {
+            width: 60px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Sticky Navbar -->
+    <nav class="navbar-sticky bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-rose-600">M Cosmetics</h1>
+                </div>
+
+                <!-- Nav Items -->
+                <div class="hidden md:flex space-x-8">
+                    <a href="{% url 'product_list' %}" class="text-gray-700 hover:text-rose-600 transition">Home</a>
+                    <a href="{% url 'product_list' %}" class="text-gray-700 hover:text-rose-600 transition">Shop</a>
+                    <a href="{% url 'about' %}" class="text-gray-700 hover:text-rose-600 transition">About</a>
+                    <a href="{% url 'contact' %}" class="text-gray-700 hover:text-rose-600 transition">Contact</a>
+                </div>
+
+                <!-- Right Side: User & Cart -->
+                <div class="flex items-center space-x-4">
+                    {% if user.is_authenticated %}
+                        <!-- User Greeting -->
+                        <div class="hidden md:flex items-center space-x-2">
+                            <i class="fas fa-user text-rose-600"></i>
+                            <span class="text-sm text-gray-700">{{ user.first_name|default:user.username }}</span>
+                        </div>
+                        <!-- Logout Button -->
+                        <a href="{% url 'logout' %}" class="text-gray-700 hover:text-red-600 transition text-sm font-semibold">
+                            <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                        </a>
+                    {% else %}
+                        <!-- Login/Register Buttons -->
+                        <a href="{% url 'login' %}" class="text-gray-700 hover:text-rose-600 transition text-sm font-semibold">
+                            <i class="fas fa-sign-in-alt mr-1"></i>Login
+                        </a>
+                        <a href="{% url 'register' %}" class="bg-rose-600 text-white px-4 py-2 rounded-lg hover:bg-rose-700 transition text-sm">
+                            <i class="fas fa-user-plus mr-1"></i>Register
+                        </a>
+                    {% endif %}
+
+                    <!-- Cart Icon -->
+                    {% if user.is_authenticated %}
+                        <button id="cart-btn" class="relative text-gray-700 hover:text-rose-600 transition">
+                            <i class="fas fa-shopping-cart text-2xl"></i>
+                            <span id="cart-count" class="cart-count hidden">0</span>
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-rose-600 to-pink-600 text-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-4xl font-bold mb-4">Luxury Perfume & Cosmetics</h2>
+            <p class="text-lg opacity-90">Discover our exquisite collection of premium beauty products</p>
+        </div>
+    </section>
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            {% for message in messages %}
+                <div class="p-4 rounded-lg mb-2 {% if message.tags %}bg-green-100 text-green-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                    <i class="fas fa-check-circle mr-2"></i>{{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Products Grid -->
+        <h2 class="text-3xl font-bold text-gray-900 mb-8">Our Products</h2>
+        
+        {% if products %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {% for product in products %}
+                    <div class="product-card bg-white rounded-lg overflow-hidden {% if not product.in_stock %}sold-out{% endif %}">
+                        <!-- Product Image -->
+                        <div class="relative bg-gray-100 h-64 overflow-hidden">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover">
+                            {% else %}
+                                <div class="w-full h-full flex items-center justify-center bg-gray-300">
+                                    <i class="fas fa-image text-gray-500 text-4xl"></i>
+                                </div>
+                            {% endif %}
+                            
+                            {% if not product.in_stock %}
+                                <div class="sold-out-badge">
+                                    <i class="fas fa-times mr-1"></i>SOLD OUT
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Product Info -->
+                        <div class="p-4">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ product.name }}</h3>
+                            <p class="text-sm text-gray-600 mb-4 line-clamp-2">{{ product.description }}</p>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-2xl font-bold text-rose-600">${{ product.price }}</span>
+                                <span class="text-sm {% if product.in_stock %}text-green-600{% else %}text-red-600{% endif %} font-semibold">
+                                    {% if product.in_stock %}In Stock{% else %}Out of Stock{% endif %}
+                                </span>
+                            </div>
+
+                            <!-- Add to Cart Button -->
+                            {% if user.is_authenticated %}
+                                <button 
+                                    class="add-to-cart-btn w-full py-2 px-4 rounded-lg font-semibold transition {% if product.in_stock %}bg-rose-600 text-white hover:bg-rose-700{% else %}bg-gray-300 text-gray-500 cursor-not-allowed{% endif %}"
+                                    data-product-id="{{ product.id }}"
+                                    data-product-name="{{ product.name }}"
+                                    data-product-price="{{ product.price }}"
+                                    {% if not product.in_stock %}disabled{% endif %}
+                                >
+                                    <i class="fas fa-plus mr-2"></i>Add to Cart
+                                </button>
+                            {% else %}
+                                <a href="{% url 'login' %}?next={% url 'product_list' %}" class="block w-full py-2 px-4 rounded-lg font-semibold text-center bg-blue-600 text-white hover:bg-blue-700 transition">
+                                    <i class="fas fa-sign-in-alt mr-2"></i>Login to Cart
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if paginator.num_pages > 1 %}
+            <div class="mt-12 flex justify-center items-center space-x-2">
+                <!-- Previous Page -->
+                {% if page_obj.has_previous %}
+                    <a href="?page=1" class="px-3 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-rose-600 hover:text-white transition">«</a>
+                    <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-rose-600 hover:text-white transition">‹</a>
+                {% else %}
+                    <span class="px-3 py-2 rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed">«</span>
+                    <span class="px-3 py-2 rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed">‹</span>
+                {% endif %}
+                
+                <!-- Page Numbers -->
+                <div class="flex space-x-1">
+                    {% for num in paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <span class="px-3 py-2 rounded-lg bg-rose-600 text-white font-semibold">{{ num }}</span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <a href="?page={{ num }}" class="px-3 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-rose-600 hover:text-white transition">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                
+                <!-- Next Page -->
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-rose-600 hover:text-white transition">›</a>
+                    <a href="?page={{ paginator.num_pages }}" class="px-3 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-rose-600 hover:text-white transition">»</a>
+                {% else %}
+                    <span class="px-3 py-2 rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed">›</span>
+                    <span class="px-3 py-2 rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed">»</span>
+                {% endif %}
+            </div>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-12">
+                <p class="text-gray-600 text-lg">No products available at the moment.</p>
+            </div>
+        {% endif %}
+    </main>
+
+    <!-- Cart Modal (Only visible to authenticated users) -->
+    {% if user.is_authenticated %}
+    <div id="cart-modal" class="modal-overlay">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="bg-rose-600 text-white p-6 flex justify-between items-center">
+                <h2 class="text-2xl font-bold">Shopping Cart</h2>
+                <button id="close-cart-btn" class="text-2xl cursor-pointer hover:text-gray-200">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Cart Items -->
+            <div id="cart-items-container" class="p-6">
+                <div id="empty-cart-message" class="text-center text-gray-600 py-8">
+                    <i class="fas fa-shopping-cart text-4xl text-gray-300 mb-4"></i>
+                    <p>Your cart is empty</p>
+                </div>
+                <div id="cart-items-list"></div>
+            </div>
+
+            <!-- Cart Summary -->
+            <div id="cart-summary" class="hidden border-t p-6 bg-gray-50">
+                <div class="mb-4">
+                    <div class="flex justify-between text-gray-700 mb-2">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">$0.00</span>
+                    </div>
+                    <div class="flex justify-between text-gray-700 mb-4">
+                        <span>Items:</span>
+                        <span id="item-count">0</span>
+                    </div>
+                    <div class="border-t pt-4 flex justify-between text-lg font-bold text-gray-900">
+                        <span>Total:</span>
+                        <span id="total">$0.00</span>
+                    </div>
+                </div>
+
+                <!-- Checkout Buttons -->
+                <div class="space-y-3">
+                    <button id="whatsapp-checkout-btn" class="w-full bg-green-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-green-600 transition">
+                        <i class="fab fa-whatsapp mr-2"></i>Checkout via WhatsApp
+                    </button>
+                    <button id="close-cart-modal-btn" class="w-full bg-gray-300 text-gray-700 py-3 px-4 rounded-lg font-semibold hover:bg-gray-400 transition">
+                        Continue Shopping
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- JavaScript -->
+    <script>
+        // Cart Management
+        class ShoppingCart {
+            constructor() {
+                this.cart = this.loadCart();
+                this.init();
+            }
+
+            init() {
+                this.attachEventListeners();
+                this.updateUI();
+            }
+
+            loadCart() {
+                const saved = localStorage.getItem('cart');
+                return saved ? JSON.parse(saved) : [];
+            }
+
+            saveCart() {
+                localStorage.setItem('cart', JSON.stringify(this.cart));
+                this.updateUI();
+            }
+
+            addItem(productId, productName, productPrice) {
+                const existingItem = this.cart.find(item => item.id === productId);
+                
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    this.cart.push({
+                        id: productId,
+                        name: productName,
+                        price: parseFloat(productPrice),
+                        quantity: 1
+                    });
+                }
+
+                this.saveCart();
+                this.showNotification(`${productName} added to cart!`);
+            }
+
+            removeItem(productId) {
+                this.cart = this.cart.filter(item => item.id !== productId);
+                this.saveCart();
+            }
+
+            updateQuantity(productId, quantity) {
+                const item = this.cart.find(item => item.id === productId);
+                if (item) {
+                    if (quantity <= 0) {
+                        this.removeItem(productId);
+                    } else {
+                        item.quantity = quantity;
+                        this.saveCart();
+                    }
+                }
+            }
+
+            getTotal() {
+                return this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            }
+
+            getItemCount() {
+                return this.cart.reduce((sum, item) => sum + item.quantity, 0);
+            }
+
+            updateUI() {
+                const cartCount = this.getItemCount();
+                const cartCountEl = document.getElementById('cart-count');
+                
+                if (cartCount > 0) {
+                    cartCountEl.classList.remove('hidden');
+                    cartCountEl.textContent = cartCount;
+                } else {
+                    cartCountEl.classList.add('hidden');
+                }
+
+                this.renderCartItems();
+            }
+
+            renderCartItems() {
+                const container = document.getElementById('cart-items-list');
+                const emptyMessage = document.getElementById('empty-cart-message');
+                const summary = document.getElementById('cart-summary');
+
+                if (this.cart.length === 0) {
+                    container.innerHTML = '';
+                    emptyMessage.classList.remove('hidden');
+                    summary.classList.add('hidden');
+                } else {
+                    emptyMessage.classList.add('hidden');
+                    summary.classList.remove('hidden');
+
+                    container.innerHTML = this.cart.map(item => `
+                        <div class="mb-4 pb-4 border-b flex items-center justify-between">
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-gray-900">${item.name}</h4>
+                                <p class="text-rose-600 font-bold">$${item.price.toFixed(2)}</p>
+                            </div>
+                            <div class="flex items-center gap-3 ml-4">
+                                <button class="decrease-qty px-2 py-1 bg-gray-200 rounded hover:bg-gray-300" data-id="${item.id}">
+                                    <i class="fas fa-minus text-sm"></i>
+                                </button>
+                                <input type="number" class="quantity-input text-center border rounded py-1" value="${item.quantity}" data-id="${item.id}" min="1">
+                                <button class="increase-qty px-2 py-1 bg-gray-200 rounded hover:bg-gray-300" data-id="${item.id}">
+                                    <i class="fas fa-plus text-sm"></i>
+                                </button>
+                                <button class="remove-item px-2 py-1 bg-red-200 text-red-600 rounded hover:bg-red-300" data-id="${item.id}">
+                                    <i class="fas fa-trash text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+
+                    // Update totals
+                    document.getElementById('subtotal').textContent = `$${this.getTotal().toFixed(2)}`;
+                    document.getElementById('total').textContent = `$${this.getTotal().toFixed(2)}`;
+                    document.getElementById('item-count').textContent = this.getItemCount();
+
+                    this.attachCartItemListeners();
+                }
+            }
+
+            attachCartItemListeners() {
+                // Decrease quantity
+                document.querySelectorAll('.decrease-qty').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const productId = parseInt(e.currentTarget.dataset.id);
+                        const item = this.cart.find(item => item.id === productId);
+                        if (item) {
+                            this.updateQuantity(productId, item.quantity - 1);
+                        }
+                    });
+                });
+
+                // Increase quantity
+                document.querySelectorAll('.increase-qty').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const productId = parseInt(e.currentTarget.dataset.id);
+                        const item = this.cart.find(item => item.id === productId);
+                        if (item) {
+                            this.updateQuantity(productId, item.quantity + 1);
+                        }
+                    });
+                });
+
+                // Direct quantity input
+                document.querySelectorAll('.quantity-input').forEach(input => {
+                    input.addEventListener('change', (e) => {
+                        const productId = parseInt(e.currentTarget.dataset.id);
+                        const quantity = parseInt(e.currentTarget.value) || 1;
+                        this.updateQuantity(productId, quantity);
+                    });
+                });
+
+                // Remove item
+                document.querySelectorAll('.remove-item').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const productId = parseInt(e.currentTarget.dataset.id);
+                        this.removeItem(productId);
+                    });
+                });
+            }
+
+            attachEventListeners() {
+                // Add to cart buttons
+                document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const productId = parseInt(e.currentTarget.dataset.productId);
+                        const productName = e.currentTarget.dataset.productName;
+                        const productPrice = e.currentTarget.dataset.productPrice;
+                        this.addItem(productId, productName, productPrice);
+                    });
+                });
+
+                // Cart modal toggles
+                document.getElementById('cart-btn').addEventListener('click', () => {
+                    document.getElementById('cart-modal').classList.add('active');
+                });
+
+                document.getElementById('close-cart-btn').addEventListener('click', () => {
+                    document.getElementById('cart-modal').classList.remove('active');
+                });
+
+                document.getElementById('close-cart-modal-btn').addEventListener('click', () => {
+                    document.getElementById('cart-modal').classList.remove('active');
+                });
+
+                // Close modal when clicking outside
+                document.getElementById('cart-modal').addEventListener('click', (e) => {
+                    if (e.target.id === 'cart-modal') {
+                        document.getElementById('cart-modal').classList.remove('active');
+                    }
+                });
+
+                // WhatsApp checkout
+                document.getElementById('whatsapp-checkout-btn').addEventListener('click', () => {
+                    this.checkoutViaWhatsApp();
+                });
+            }
+
+            checkoutViaWhatsApp() {
+                if (this.cart.length === 0) {
+                    alert('Your cart is empty!');
+                    return;
+                }
+
+                // Build message
+                let message = "Hello M Cosmetics, I'd like to order:\n\n";
+                
+                this.cart.forEach(item => {
+                    message += `• ${item.name} (x${item.quantity}) - $${(item.price * item.quantity).toFixed(2)}\n`;
+                });
+
+                message += `\nTotal: $${this.getTotal().toFixed(2)}`;
+
+                // Encode and redirect to WhatsApp
+                const encodedMessage = encodeURIComponent(message);
+                const whatsappUrl = `https://wa.me/263715297108?text=${encodedMessage}`;
+                window.open(whatsappUrl, '_blank');
+
+                // Clear cart after checkout
+                this.cart = [];
+                this.saveCart();
+                document.getElementById('cart-modal').classList.remove('active');
+                this.showNotification('Order sent via WhatsApp!');
+            }
+
+            showNotification(message) {
+                // Simple notification - you can enhance this with a toast library
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                notification.textContent = message;
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
+        }
+
+        // Initialize cart when page loads (only for authenticated users)
+        document.addEventListener('DOMContentLoaded', () => {
+            {% if user.is_authenticated %}
+                new ShoppingCart();
+            {% endif %}
+        });
+    </script>
+</body>
+</html>

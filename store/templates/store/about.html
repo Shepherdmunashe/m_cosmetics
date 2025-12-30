@@ -1,0 +1,226 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - M Cosmetics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .navbar-sticky {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .about-image-frame {
+            position: relative;
+        }
+        .about-image-frame::before {
+            content: '';
+            position: absolute;
+            top: 16px;
+            left: -16px;
+            width: 100%;
+            height: 100%;
+            border: 3px solid #be123c;
+            border-radius: 12px;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Sticky Navbar -->
+    <nav class="navbar-sticky bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="{% url 'product_list' %}" class="text-2xl font-bold text-rose-600 hover:text-rose-700 transition">M Cosmetics</a>
+                </div>
+
+                <!-- Nav Items -->
+                <div class="hidden md:flex space-x-8">
+                    <a href="{% url 'product_list' %}" class="text-gray-700 hover:text-rose-600 transition">Home</a>
+                    <a href="{% url 'product_list' %}" class="text-gray-700 hover:text-rose-600 transition">Shop</a>
+                    <a href="{% url 'about' %}" class="text-gray-700 hover:text-rose-600 transition font-semibold">About</a>
+                    <a href="{% url 'contact' %}" class="text-gray-700 hover:text-rose-600 transition">Contact</a>
+                </div>
+
+                <!-- Right Side: User & Cart -->
+                <div class="flex items-center space-x-4">
+                    {% if user.is_authenticated %}
+                        <!-- User Greeting -->
+                        <div class="hidden md:flex items-center space-x-2">
+                            <i class="fas fa-user text-rose-600"></i>
+                            <span class="text-sm text-gray-700">{{ user.first_name|default:user.username }}</span>
+                        </div>
+                        <!-- Logout Button -->
+                        <a href="{% url 'logout' %}" class="text-gray-700 hover:text-red-600 transition text-sm font-semibold">
+                            <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                        </a>
+                    {% else %}
+                        <!-- Login/Register Buttons -->
+                        <a href="{% url 'login' %}" class="text-gray-700 hover:text-rose-600 transition text-sm font-semibold">
+                            <i class="fas fa-sign-in-alt mr-1"></i>Login
+                        </a>
+                        <a href="{% url 'register' %}" class="bg-rose-600 text-white px-4 py-2 rounded-lg hover:bg-rose-700 transition text-sm">
+                            <i class="fas fa-user-plus mr-1"></i>Register
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="bg-white">
+        <div class="max-w-4xl mx-auto text-center py-16 px-4">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                More Than Just <span class="text-rose-600">Fragrance.</span>
+            </h1>
+            <p class="text-xl text-gray-600 leading-relaxed">
+                Welcome to M Cosmetics, your personal gateway to the world's finest Bath & Body Works luxuries right here in Zimbabwe. We believe self-care isn't a luxury—it's a daily ritual.
+            </p>
+        </div>
+
+        <!-- Story Section -->
+        <div class="bg-stone-50 py-16">
+            <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center gap-12">
+                <!-- Image with Frame -->
+                <div class="w-full md:w-1/2 relative">
+                    <div class="about-image-frame">
+                        <img src="https://images.unsplash.com/photo-1547887538-e3a2f32cb1cc?q=80&w=1000&auto=format&fit=crop" 
+                             alt="M Cosmetics Collection" 
+                             class="rounded-lg shadow-xl w-full object-cover h-96">
+                    </div>
+                </div>
+
+                <!-- Text Content -->
+                <div class="w-full md:w-1/2 space-y-6">
+                    <h2 class="text-3xl font-bold text-gray-900">Our Story</h2>
+                    <p class="text-gray-600 leading-relaxed text-lg">
+                        M Cosmetics began with a simple passion: the love for scents that transform a mood and a desire to share that experience with our community. We noticed how difficult it was to find authentic, affordable premium body care products locally.
+                    </p>
+                    <p class="text-gray-600 leading-relaxed text-lg">
+                        Today, we curate a carefully selected collection of <strong>Bath & Body Works</strong> favorites—from the iconic <em>Japanese Cherry Blossom</em> to the rich hydration of signature body butters and luxurious fragrances. We are committed to bringing you the "fresh from the store" experience, without the hassle of shipping it yourself.
+                    </p>
+                    <p class="text-gray-600 leading-relaxed text-lg">
+                        Every product in our collection is handpicked to ensure quality, authenticity, and the perfect scent for every season.
+                    </p>
+                    
+                    <div class="pt-4 border-t border-gray-300">
+                        <p class="font-bold text-gray-900 text-lg">Munashe Shepherd</p>
+                        <p class="text-rose-600 uppercase tracking-wide font-semibold text-sm">Founder, M Cosmetics</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trust/Value Proposition Section -->
+    <section class="max-w-7xl mx-auto py-20 px-4">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Why Choose M Cosmetics?</h2>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">We're not just a store—we're a trusted partner in your self-care journey.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            <!-- Authenticity -->
+            <div class="p-8 hover:shadow-lg transition rounded-xl border border-gray-100 hover:border-rose-200 bg-white">
+                <div class="w-16 h-16 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                    <i class="fas fa-check-double"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">100% Authentic</h3>
+                <p class="text-gray-600 text-center">No knock-offs. Every bottle is genuinely sourced directly from authorized distributors to ensure the quality and longevity you expect.</p>
+            </div>
+
+            <!-- Fast Delivery -->
+            <div class="p-8 hover:shadow-lg transition rounded-xl border border-gray-100 hover:border-rose-200 bg-white">
+                <div class="w-16 h-16 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">Fast Local Delivery</h3>
+                <p class="text-gray-600 text-center">Skip the international wait times. We stock locally so you can get your favorites within 24-48 hours. No long shipping delays.</p>
+            </div>
+
+            <!-- Curated Selection -->
+            <div class="p-8 hover:shadow-lg transition rounded-xl border border-gray-100 hover:border-rose-200 bg-white">
+                <div class="w-16 h-16 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">Curated With Love</h3>
+                <p class="text-gray-600 text-center">We don't sell everything—we sell the best. Our collection is hand-picked for quality and the season's most coveted scents.</p>
+            </div>
+
+            <!-- Expert Knowledge -->
+            <div class="p-8 hover:shadow-lg transition rounded-xl border border-gray-100 hover:border-rose-200 bg-white">
+                <div class="w-16 h-16 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">Expert Guidance</h3>
+                <p class="text-gray-600 text-center">Not sure which scent is right for you? We provide personalized recommendations to help you find your signature fragrance.</p>
+            </div>
+
+            <!-- Affordable Luxury -->
+            <div class="p-8 hover:shadow-lg transition rounded-xl border border-gray-100 hover:border-rose-200 bg-white">
+                <div class="w-16 h-16 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                    <i class="fas fa-tag"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">Affordable Luxury</h3>
+                <p class="text-gray-600 text-center">Premium products don't have to break the bank. We offer competitive pricing while maintaining authentic quality.</p>
+            </div>
+
+            <!-- Community Focused -->
+            <div class="p-8 hover:shadow-lg transition rounded-xl border border-gray-100 hover:border-rose-200 bg-white">
+                <div class="w-16 h-16 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">Community Focused</h3>
+                <p class="text-gray-600 text-center">We're proud to serve Zimbabwe. Your satisfaction and feedback shape how we grow and improve every day.</p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Mission Section -->
+    <section class="bg-rose-50 border-t border-b border-rose-200 py-16">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold text-gray-900 mb-6">Our Mission</h2>
+            <p class="text-lg text-gray-700 leading-relaxed">
+                At M Cosmetics, our mission is to make premium self-care accessible to everyone in Zimbabwe. We believe that luxury fragrances and body care products should be within reach, not require international shipping. 
+            </p>
+            <p class="text-lg text-gray-700 leading-relaxed mt-4">
+                We're dedicated to providing authentic products, exceptional service, and a shopping experience that celebrates the art of self-love and personal care.
+            </p>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="max-w-7xl mx-auto py-20 px-4 text-center">
+        <h2 class="text-3xl font-bold text-gray-900 mb-6">Ready to Find Your Signature Scent?</h2>
+        <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+            Explore our carefully curated collection of Bath & Body Works products and discover your new favorite fragrance today.
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a href="{% url 'product_list' %}" class="inline-flex items-center justify-center px-8 py-3 bg-rose-600 text-white font-semibold rounded-lg hover:bg-rose-700 transition">
+                <i class="fas fa-shopping-bag mr-2"></i>Shop Now
+            </a>
+            <a href="{% url 'contact' %}" class="inline-flex items-center justify-center px-8 py-3 bg-gray-200 text-gray-900 font-semibold rounded-lg hover:bg-gray-300 transition">
+                <i class="fas fa-envelope mr-2"></i>Get in Touch
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="text-center">
+                <p>&copy; 2025 M Cosmetics. All rights reserved. | Bringing premium self-care to Zimbabwe</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

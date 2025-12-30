@@ -1,0 +1,210 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - M Cosmetics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar-active {
+            background-color: #be123c;
+            color: white;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        .stat-card.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .stat-card.success {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        .stat-card.warning {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        .stat-card.danger {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-gray-900 text-white">
+            <div class="p-6 border-b border-gray-700">
+                <h2 class="text-2xl font-bold text-rose-600"><i class="fas fa-crown mr-2"></i>Admin Panel</h2>
+            </div>
+            
+            <nav class="mt-6">
+                <a href="{% url 'admin_dashboard' %}" class="block px-6 py-3 sidebar-active hover:bg-gray-800 transition">
+                    <i class="fas fa-chart-line mr-3"></i>Dashboard
+                </a>
+                <a href="{% url 'manage_products' %}" class="block px-6 py-3 hover:bg-gray-800 transition">
+                    <i class="fas fa-box mr-3"></i>Manage Products
+                </a>
+                <a href="{% url 'add_product' %}" class="block px-6 py-3 hover:bg-gray-800 transition">
+                    <i class="fas fa-plus-circle mr-3"></i>Add Product
+                </a>
+                <a href="{% url 'manage_users' %}" class="block px-6 py-3 hover:bg-gray-800 transition">
+                    <i class="fas fa-users mr-3"></i>Manage Users
+                </a>
+                <hr class="my-4 border-gray-700">
+                <a href="{% url 'product_list' %}" class="block px-6 py-3 hover:bg-gray-800 transition">
+                    <i class="fas fa-home mr-3"></i>Back to Store
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1">
+            <!-- Top Bar -->
+            <div class="bg-white shadow p-6 flex justify-between items-center">
+                <h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+                <div class="flex items-center space-x-4">
+                    <span class="text-gray-700">Welcome, <strong>{{ user.first_name|default:user.username }}</strong></span>
+                    <a href="{% url 'logout' %}" class="text-red-600 hover:text-red-800 font-semibold">
+                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                    </a>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            {% if messages %}
+                <div class="max-w-7xl mx-auto px-6 py-4">
+                    {% for message in messages %}
+                        <div class="p-4 rounded-lg mb-2 {% if message.tags %}bg-green-100 text-green-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                            <i class="fas fa-check-circle mr-2"></i>{{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Content -->
+            <div class="max-w-7xl mx-auto p-6">
+                <!-- Statistics Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- Total Products -->
+                    <div class="stat-card primary p-6 rounded-lg shadow hover:shadow-lg transition">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm opacity-90">Total Products</p>
+                                <p class="text-3xl font-bold mt-2">{{ total_products }}</p>
+                            </div>
+                            <i class="fas fa-box text-4xl opacity-20"></i>
+                        </div>
+                    </div>
+
+                    <!-- In Stock -->
+                    <div class="stat-card success p-6 rounded-lg shadow hover:shadow-lg transition">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm opacity-90">In Stock</p>
+                                <p class="text-3xl font-bold mt-2">{{ in_stock_products }}</p>
+                            </div>
+                            <i class="fas fa-check-circle text-4xl opacity-20"></i>
+                        </div>
+                    </div>
+
+                    <!-- Out of Stock -->
+                    <div class="stat-card danger p-6 rounded-lg shadow hover:shadow-lg transition">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm opacity-90">Out of Stock</p>
+                                <p class="text-3xl font-bold mt-2">{{ out_of_stock_products }}</p>
+                            </div>
+                            <i class="fas fa-times-circle text-4xl opacity-20"></i>
+                        </div>
+                    </div>
+
+                    <!-- Total Users -->
+                    <div class="stat-card warning p-6 rounded-lg shadow hover:shadow-lg transition">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm opacity-90">Total Users</p>
+                                <p class="text-3xl font-bold mt-2">{{ total_users }}</p>
+                            </div>
+                            <i class="fas fa-users text-4xl opacity-20"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Products Table -->
+                <div class="bg-white rounded-lg shadow">
+                    <div class="p-6 border-b border-gray-200">
+                        <h2 class="text-xl font-bold text-gray-900 flex items-center">
+                            <i class="fas fa-list mr-3 text-rose-600"></i>Recent Products
+                        </h2>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Product</th>
+                                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Price</th>
+                                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Stock Status</th>
+                                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in recent_products %}
+                                <tr class="border-b border-gray-200 hover:bg-gray-50 transition">
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center">
+                                            {% if product.image %}
+                                                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-10 h-10 rounded mr-4 object-cover">
+                                            {% else %}
+                                                <div class="w-10 h-10 rounded mr-4 bg-gray-200 flex items-center justify-center">
+                                                    <i class="fas fa-image text-gray-400"></i>
+                                                </div>
+                                            {% endif %}
+                                            <span class="font-semibold text-gray-900">{{ product.name }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-gray-700 font-semibold">${{ product.price }}</td>
+                                    <td class="px-6 py-4">
+                                        {% if product.in_stock %}
+                                            <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
+                                                <i class="fas fa-check mr-1"></i>In Stock
+                                            </span>
+                                        {% else %}
+                                            <span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-semibold">
+                                                <i class="fas fa-times mr-1"></i>Out of Stock
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-6 py-4 space-x-2">
+                                        <a href="{% url 'edit_product' product.id %}" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm font-semibold inline-block transition">
+                                            <i class="fas fa-edit mr-1"></i>Edit
+                                        </a>
+                                        <a href="{% url 'delete_product' product.id %}" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm font-semibold inline-block transition">
+                                            <i class="fas fa-trash mr-1"></i>Delete
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">No products yet. <a href="{% url 'add_product' %}" class="text-rose-600 hover:underline">Add one now</a></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="p-4 bg-gray-50 border-t border-gray-200">
+                        <a href="{% url 'manage_products' %}" class="text-rose-600 hover:text-rose-700 font-semibold">
+                            View all products <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
