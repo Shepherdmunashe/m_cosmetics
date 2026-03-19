@@ -1,0 +1,214 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant - M Cosmetics Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar-active { background-color: #be123c; color: white; }
+        .action-card { cursor: pointer; transition: all 0.2s; }
+        .action-card:hover { transform: translateY(-2px); }
+        .action-card.selected { border-color: #e11d48; background-color: #fff1f2; }
+        #result-box { white-space: pre-wrap; }
+    </style>
+</head>
+<body class="bg-gray-100">
+<div class="flex min-h-screen">
+    {% include 'store/admin/_sidebar.html' %}
+
+    <div class="flex-1">
+        <div class="bg-white shadow p-6">
+            <h1 class="text-3xl font-bold text-gray-900">
+                <i class="fas fa-robot mr-3 text-rose-600"></i>AI Assistant
+            </h1>
+            <p class="text-sm text-gray-500 mt-1">Generate product descriptions, captions, and marketing copy powered by Claude AI</p>
+        </div>
+
+        <div class="max-w-5xl mx-auto p-6">
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                <!-- Input Panel -->
+                <div class="space-y-5">
+
+                    <!-- Product selector -->
+                    <div class="bg-white rounded-xl shadow p-5">
+                        <h2 class="text-lg font-bold text-gray-900 mb-3"><i class="fas fa-box mr-2 text-rose-600"></i>Product</h2>
+                        <select id="product-select" onchange="fillProduct()"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 mb-3">
+                            <option value="">— Select existing product or type below —</option>
+                            {% for product in products %}
+                            <option value="{{ product.name }}" data-category="{{ product.category.name|default:'' }}" data-price="{{ product.price }}">{{ product.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="text" id="product-name" placeholder="Or type product name manually"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 mb-3">
+                        <div class="grid grid-cols-2 gap-3">
+                            <input type="text" id="product-category" placeholder="Category (optional)"
+                                   class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 text-sm">
+                            <input type="text" id="product-price" placeholder="Price e.g. 45"
+                                   class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 text-sm">
+                        </div>
+                    </div>
+
+                    <!-- Action cards -->
+                    <div class="bg-white rounded-xl shadow p-5">
+                        <h2 class="text-lg font-bold text-gray-900 mb-3"><i class="fas fa-magic mr-2 text-rose-600"></i>What to Generate</h2>
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div class="action-card selected border-2 border-rose-600 bg-rose-50 rounded-xl p-4 text-center" data-action="description" onclick="selectAction('description', this)">
+                                <i class="fas fa-align-left text-2xl text-rose-600 mb-2"></i>
+                                <p class="font-semibold text-sm text-gray-900">Product Description</p>
+                            </div>
+                            <div class="action-card border-2 border-gray-200 rounded-xl p-4 text-center" data-action="caption" onclick="selectAction('caption', this)">
+                                <i class="fab fa-instagram text-2xl text-pink-500 mb-2"></i>
+                                <p class="font-semibold text-sm text-gray-900">Instagram Caption</p>
+                            </div>
+                            <div class="action-card border-2 border-gray-200 rounded-xl p-4 text-center" data-action="marketing" onclick="selectAction('marketing', this)">
+                                <i class="fas fa-bullhorn text-2xl text-blue-500 mb-2"></i>
+                                <p class="font-semibold text-sm text-gray-900">Marketing Copy</p>
+                            </div>
+                            <div class="action-card border-2 border-gray-200 rounded-xl p-4 text-center" data-action="hashtags" onclick="selectAction('hashtags', this)">
+                                <i class="fas fa-hashtag text-2xl text-purple-500 mb-2"></i>
+                                <p class="font-semibold text-sm text-gray-900">Hashtag Suggestions</p>
+                            </div>
+                        </div>
+
+                        <!-- Store Q&A -->
+                        <div class="action-card border-2 border-gray-200 rounded-xl p-4" data-action="answer_question" onclick="selectAction('answer_question', this)" id="qa-card">
+                            <div class="flex items-center gap-3 mb-2">
+                                <i class="fas fa-comment-dots text-2xl text-green-500"></i>
+                                <span class="font-semibold text-gray-900">Ask a Question</span>
+                            </div>
+                            <textarea id="store-question" rows="2" placeholder="e.g. What are good captions for perfume? How should I price this product?"
+                                      class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-rose-500"></textarea>
+                        </div>
+                    </div>
+
+                    <button onclick="generate()" id="generate-btn"
+                            class="w-full py-3 bg-rose-600 text-white font-bold rounded-xl hover:bg-rose-700 transition text-lg">
+                        <i class="fas fa-wand-magic-sparkles mr-2"></i>Generate
+                    </button>
+                </div>
+
+                <!-- Output Panel -->
+                <div class="bg-white rounded-xl shadow p-5 flex flex-col">
+                    <div class="flex justify-between items-center mb-3">
+                        <h2 class="text-lg font-bold text-gray-900"><i class="fas fa-sparkles mr-2 text-rose-600"></i>Output</h2>
+                        <button onclick="copyResult()" id="copy-btn" class="hidden text-sm text-rose-600 hover:text-rose-700 font-semibold">
+                            <i class="fas fa-copy mr-1"></i>Copy
+                        </button>
+                    </div>
+                    <div id="result-loading" class="hidden flex-1 flex items-center justify-center">
+                        <div class="text-center text-gray-400">
+                            <i class="fas fa-spinner fa-spin text-3xl mb-3"></i>
+                            <p>Generating with Claude AI...</p>
+                        </div>
+                    </div>
+                    <div id="result-placeholder" class="flex-1 flex items-center justify-center text-center text-gray-400 py-12">
+                        <div>
+                            <i class="fas fa-robot text-5xl mb-4 opacity-30"></i>
+                            <p>Select an action and click Generate</p>
+                            <p class="text-xs mt-2 opacity-60">Add AI_API_KEY to .env for Claude-powered results</p>
+                        </div>
+                    </div>
+                    <pre id="result-box" class="hidden flex-1 text-gray-800 text-sm leading-relaxed bg-gray-50 rounded-lg p-4 overflow-y-auto max-h-96"></pre>
+                    <div id="result-error" class="hidden text-red-600 text-sm bg-red-50 rounded-lg p-4"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let selectedAction = 'description';
+    const csrfToken = '{{ csrf_token }}';
+    const generateUrl = '{% url "ai_generate" %}';
+
+    function selectAction(action, el) {
+        selectedAction = action;
+        document.querySelectorAll('.action-card').forEach(c => {
+            c.classList.remove('selected', 'border-rose-600', 'bg-rose-50');
+            c.classList.add('border-gray-200');
+        });
+        el.classList.add('selected', 'border-rose-600', 'bg-rose-50');
+        el.classList.remove('border-gray-200');
+    }
+
+    function fillProduct() {
+        const sel = document.getElementById('product-select');
+        const opt = sel.options[sel.selectedIndex];
+        if (opt.value) {
+            document.getElementById('product-name').value = opt.value;
+            document.getElementById('product-category').value = opt.dataset.category || '';
+            document.getElementById('product-price').value = opt.dataset.price || '';
+        }
+    }
+
+    async function generate() {
+        const name = document.getElementById('product-name').value.trim();
+        const question = document.getElementById('store-question').value.trim();
+
+        if (selectedAction !== 'answer_question' && !name) {
+            alert('Please enter a product name.');
+            return;
+        }
+        if (selectedAction === 'answer_question' && !question) {
+            alert('Please enter a question.');
+            return;
+        }
+
+        document.getElementById('result-placeholder').classList.add('hidden');
+        document.getElementById('result-box').classList.add('hidden');
+        document.getElementById('result-error').classList.add('hidden');
+        document.getElementById('result-loading').classList.remove('hidden');
+        document.getElementById('copy-btn').classList.add('hidden');
+        document.getElementById('generate-btn').disabled = true;
+
+        const body = new URLSearchParams({
+            action: selectedAction,
+            product_name: name,
+            category: document.getElementById('product-category').value.trim(),
+            price: document.getElementById('product-price').value.trim(),
+            question,
+        });
+
+        try {
+            const resp = await fetch(generateUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': csrfToken },
+                body,
+            });
+            const data = await resp.json();
+            document.getElementById('result-loading').classList.add('hidden');
+            if (data.result) {
+                document.getElementById('result-box').textContent = data.result;
+                document.getElementById('result-box').classList.remove('hidden');
+                document.getElementById('copy-btn').classList.remove('hidden');
+            } else {
+                document.getElementById('result-error').textContent = data.error || 'Unknown error';
+                document.getElementById('result-error').classList.remove('hidden');
+            }
+        } catch(e) {
+            document.getElementById('result-loading').classList.add('hidden');
+            document.getElementById('result-error').textContent = 'Network error. Please try again.';
+            document.getElementById('result-error').classList.remove('hidden');
+        } finally {
+            document.getElementById('generate-btn').disabled = false;
+        }
+    }
+
+    function copyResult() {
+        const text = document.getElementById('result-box').textContent;
+        navigator.clipboard.writeText(text).then(() => {
+            const btn = document.getElementById('copy-btn');
+            btn.innerHTML = '<i class="fas fa-check mr-1"></i>Copied!';
+            setTimeout(() => { btn.innerHTML = '<i class="fas fa-copy mr-1"></i>Copy'; }, 2000);
+        });
+    }
+</script>
+</body>
+</html>

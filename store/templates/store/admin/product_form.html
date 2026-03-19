@@ -16,31 +16,7 @@
 </head>
 <body class="bg-gray-100">
     <div class="flex min-h-screen">
-        <!-- Sidebar -->
-        <div class="w-64 bg-gray-900 text-white">
-            <div class="p-6 border-b border-gray-700">
-                <h2 class="text-2xl font-bold text-rose-600"><i class="fas fa-crown mr-2"></i>Admin Panel</h2>
-            </div>
-            
-            <nav class="mt-6">
-                <a href="{% url 'admin_dashboard' %}" class="block px-6 py-3 hover:bg-gray-800 transition">
-                    <i class="fas fa-chart-line mr-3"></i>Dashboard
-                </a>
-                <a href="{% url 'manage_products' %}" class="block px-6 py-3 hover:bg-gray-800 transition">
-                    <i class="fas fa-box mr-3"></i>Manage Products
-                </a>
-                <a href="{% url 'add_product' %}" class="block px-6 py-3 sidebar-active hover:bg-gray-800 transition">
-                    <i class="fas fa-plus-circle mr-3"></i>Add Product
-                </a>
-                <a href="{% url 'manage_users' %}" class="block px-6 py-3 hover:bg-gray-800 transition">
-                    <i class="fas fa-users mr-3"></i>Manage Users
-                </a>
-                <hr class="my-4 border-gray-700">
-                <a href="{% url 'product_list' %}" class="block px-6 py-3 hover:bg-gray-800 transition">
-                    <i class="fas fa-home mr-3"></i>Back to Store
-                </a>
-            </nav>
-        </div>
+        {% include 'store/admin/_sidebar.html' %}
 
         <!-- Main Content -->
         <div class="flex-1">
@@ -75,6 +51,24 @@
                                     {% for error in form.name.errors %}
                                         <p>{{ error }}</p>
                                     {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Category -->
+                        <div class="mb-6">
+                            <label for="{{ form.category.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">Category</label>
+                            <div class="flex gap-2 items-center">
+                                {{ form.category }}
+                                <button type="button" id="open-category-modal"
+                                        class="flex-shrink-0 px-3 py-2 bg-rose-600 text-white text-sm font-semibold rounded-lg hover:bg-rose-700 transition"
+                                        title="Add new category">
+                                    <i class="fas fa-plus mr-1"></i>New
+                                </button>
+                            </div>
+                            {% if form.category.errors %}
+                                <div class="text-red-600 text-sm mt-1">
+                                    {% for error in form.category.errors %}<p>{{ error }}</p>{% endfor %}
                                 </div>
                             {% endif %}
                         </div>
@@ -130,6 +124,29 @@
                             {% endif %}
                         </div>
 
+                        <!-- Stock Quantity + Threshold -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label for="{{ form.stock_quantity.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-boxes mr-1 text-rose-400"></i>Stock Quantity
+                                </label>
+                                {{ form.stock_quantity }}
+                                {% if form.stock_quantity.errors %}
+                                    <div class="text-red-600 text-sm mt-1">{% for e in form.stock_quantity.errors %}<p>{{ e }}</p>{% endfor %}</div>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <label for="{{ form.low_stock_threshold.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-exclamation-triangle mr-1 text-amber-400"></i>Low Stock Alert At
+                                </label>
+                                {{ form.low_stock_threshold }}
+                                <p class="text-xs text-gray-400 mt-1">Alert when stock falls to this number</p>
+                                {% if form.low_stock_threshold.errors %}
+                                    <div class="text-red-600 text-sm mt-1">{% for e in form.low_stock_threshold.errors %}<p>{{ e }}</p>{% endfor %}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
                         <!-- In Stock -->
                         <div class="mb-8">
                             <label class="flex items-center">
@@ -156,6 +173,33 @@
                         </div>
                     </form>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Category Modal -->
+    <div id="category-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-900"><i class="fas fa-tag mr-2 text-rose-600"></i>Add New Category</h3>
+                <button type="button" id="close-category-modal" class="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+            </div>
+            <div id="category-modal-error" class="hidden mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm"></div>
+            <div class="mb-4">
+                <label for="new-category-name" class="block text-sm font-semibold text-gray-700 mb-2">Category Name *</label>
+                <input type="text" id="new-category-name"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-600"
+                       placeholder="e.g. Lip Care">
+            </div>
+            <div class="flex gap-3 justify-end">
+                <button type="button" id="cancel-category-modal"
+                        class="px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition text-sm">
+                    Cancel
+                </button>
+                <button type="button" id="save-category"
+                        class="px-4 py-2 bg-rose-600 text-white font-semibold rounded-lg hover:bg-rose-700 transition text-sm">
+                    <i class="fas fa-save mr-1"></i>Save Category
+                </button>
             </div>
         </div>
     </div>
@@ -200,6 +244,80 @@
                 }
             });
         }
+
+        // ── Inline Add Category Modal ──────────────────────────────────────
+        const modal        = document.getElementById('category-modal');
+        const openBtn      = document.getElementById('open-category-modal');
+        const closeBtn     = document.getElementById('close-category-modal');
+        const cancelBtn    = document.getElementById('cancel-category-modal');
+        const saveBtn      = document.getElementById('save-category');
+        const nameInput    = document.getElementById('new-category-name');
+        const errorBox     = document.getElementById('category-modal-error');
+        const categorySelect = document.getElementById('{{ form.category.id_for_label }}');
+
+        function openModal() {
+            nameInput.value = '';
+            errorBox.classList.add('hidden');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            nameInput.focus();
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        openBtn.addEventListener('click', openModal);
+        closeBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+        nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') saveBtn.click(); });
+
+        saveBtn.addEventListener('click', () => {
+            const name = nameInput.value.trim();
+            if (!name) {
+                errorBox.textContent = 'Category name is required.';
+                errorBox.classList.remove('hidden');
+                nameInput.focus();
+                return;
+            }
+
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Saving…';
+
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            fetch('{% url "add_category_inline" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrfToken,
+                },
+                body: new URLSearchParams({ name }),
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    const option = new Option(data.name, data.id, true, true);
+                    categorySelect.add(option);
+                    categorySelect.value = data.id;
+                    closeModal();
+                } else {
+                    const msg = Object.values(data.errors).join(' ');
+                    errorBox.textContent = msg || 'Could not save category.';
+                    errorBox.classList.remove('hidden');
+                }
+            })
+            .catch(() => {
+                errorBox.textContent = 'Network error — please try again.';
+                errorBox.classList.remove('hidden');
+            })
+            .finally(() => {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save mr-1"></i>Save Category';
+            });
+        });
     </script>
 </body>
 </html>

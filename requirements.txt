@@ -1,1 +1,10 @@
 Django==4.2.0
+python-decouple==3.8
+django-axes==8.3.1
+Pillow
+paynow
+anthropic
+gunicorn
+whitenoise
+dj-database-url
+psycopg2-binary

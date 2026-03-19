@@ -1,0 +1,203 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory - M Cosmetics Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar-active { background-color: #be123c; color: white; }
+        .stat-card.primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .stat-card.success { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
+        .stat-card.warning { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; }
+        .stat-card.danger  { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; }
+    </style>
+</head>
+<body class="bg-gray-100">
+<div class="flex min-h-screen">
+    {% include 'store/admin/_sidebar.html' %}
+
+    <div class="flex-1">
+        <div class="bg-white shadow p-6">
+            <h1 class="text-3xl font-bold text-gray-900"><i class="fas fa-warehouse mr-3 text-rose-600"></i>Inventory Dashboard</h1>
+        </div>
+
+        {% if messages %}
+        <div class="max-w-7xl mx-auto px-6 pt-4">
+            {% for message in messages %}
+            <div class="p-4 rounded-lg mb-2 bg-green-100 text-green-800"><i class="fas fa-check mr-2"></i>{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="max-w-7xl mx-auto p-6 space-y-6">
+
+            <!-- Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="stat-card primary p-5 rounded-xl shadow">
+                    <p class="text-sm opacity-80">Total Products</p>
+                    <p class="text-3xl font-bold mt-1">{{ total_products }}</p>
+                    <i class="fas fa-box text-3xl opacity-20 mt-1"></i>
+                </div>
+                <div class="stat-card success p-5 rounded-xl shadow">
+                    <p class="text-sm opacity-80">In Stock</p>
+                    <p class="text-3xl font-bold mt-1">{{ in_stock_count }}</p>
+                    <i class="fas fa-check-circle text-3xl opacity-20 mt-1"></i>
+                </div>
+                <div class="stat-card danger p-5 rounded-xl shadow">
+                    <p class="text-sm opacity-80">Out of Stock</p>
+                    <p class="text-3xl font-bold mt-1">{{ out_of_stock_count }}</p>
+                    <i class="fas fa-exclamation-circle text-3xl opacity-20 mt-1"></i>
+                </div>
+                <div class="stat-card warning p-5 rounded-xl shadow">
+                    <p class="text-sm opacity-80">Total Orders</p>
+                    <p class="text-3xl font-bold mt-1">{{ total_orders }}</p>
+                    <i class="fas fa-shopping-bag text-3xl opacity-20 mt-1"></i>
+                </div>
+            </div>
+
+            <!-- Low Stock Alerts -->
+            {% if low_stock_alerts %}
+            <div class="bg-amber-50 border border-amber-300 rounded-xl p-5">
+                <h2 class="text-lg font-bold text-amber-800 mb-3">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>Low Stock Alerts ({{ low_stock_alerts|length }})
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {% for alert in low_stock_alerts %}
+                    <div class="bg-white border border-amber-200 rounded-lg p-4 flex items-center justify-between">
+                        <div>
+                            <p class="font-semibold text-gray-900 text-sm">{{ alert.product.name }}</p>
+                            <p class="text-amber-600 text-sm font-bold">{{ alert.product.stock_quantity }} left</p>
+                            <p class="text-xs text-gray-400">Threshold: {{ alert.product.low_stock_threshold }}</p>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <a href="{{ alert.alert_url }}" target="_blank"
+                               class="px-3 py-1 bg-green-500 text-white text-xs font-semibold rounded-lg hover:bg-green-600 transition">
+                                <i class="fab fa-whatsapp mr-1"></i>Alert
+                            </a>
+                            <a href="{% url 'edit_product' alert.product.id %}"
+                               class="px-3 py-1 bg-rose-600 text-white text-xs font-semibold rounded-lg hover:bg-rose-700 transition">
+                                <i class="fas fa-edit mr-1"></i>Edit
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Stock Table -->
+            <div class="bg-white rounded-xl shadow">
+                <div class="p-5 border-b border-gray-200 flex justify-between items-center">
+                    <h2 class="text-lg font-bold text-gray-900"><i class="fas fa-boxes mr-2 text-rose-600"></i>All Products — Stock Levels</h2>
+                    <a href="{% url 'add_product' %}" class="px-4 py-2 bg-rose-600 text-white text-sm font-semibold rounded-lg hover:bg-rose-700 transition">
+                        <i class="fas fa-plus mr-1"></i>Add Product
+                    </a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 border-b">
+                            <tr>
+                                <th class="px-5 py-3 text-left text-sm font-semibold text-gray-700">Product</th>
+                                <th class="px-5 py-3 text-left text-sm font-semibold text-gray-700">Stock</th>
+                                <th class="px-5 py-3 text-left text-sm font-semibold text-gray-700">Threshold</th>
+                                <th class="px-5 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
+                                <th class="px-5 py-3 text-left text-sm font-semibold text-gray-700">Restock</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in all_products %}
+                            <tr class="border-b hover:bg-gray-50 transition">
+                                <td class="px-5 py-3">
+                                    <div class="flex items-center gap-3">
+                                        {% if product.image %}
+                                        <img src="{{ product.image.url }}" class="w-8 h-8 rounded object-cover">
+                                        {% endif %}
+                                        <span class="font-medium text-gray-900 text-sm">{{ product.name }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-5 py-3">
+                                    <span class="text-lg font-bold {% if product.stock_quantity == 0 %}text-red-600{% elif product.is_low_stock %}text-amber-600{% else %}text-green-600{% endif %}">
+                                        {{ product.stock_quantity }}
+                                    </span>
+                                </td>
+                                <td class="px-5 py-3 text-sm text-gray-500">{{ product.low_stock_threshold }}</td>
+                                <td class="px-5 py-3">
+                                    {% if product.stock_quantity == 0 %}
+                                    <span class="px-2 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full">Out of Stock</span>
+                                    {% elif product.is_low_stock %}
+                                    <span class="px-2 py-1 bg-amber-100 text-amber-800 text-xs font-semibold rounded-full">Low Stock</span>
+                                    {% else %}
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">In Stock</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-5 py-3">
+                                    <form method="POST" action="{% url 'restock_product' product.id %}" class="flex gap-2">
+                                        {% csrf_token %}
+                                        <input type="number" name="quantity" min="1" value="10" placeholder="Qty"
+                                               class="w-20 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-rose-500">
+                                        <button type="submit"
+                                                class="px-3 py-1 bg-rose-600 text-white text-xs font-semibold rounded hover:bg-rose-700 transition">
+                                            <i class="fas fa-plus mr-1"></i>Add
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="5" class="px-5 py-8 text-center text-gray-500">No products yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Recent Orders -->
+            <div class="bg-white rounded-xl shadow">
+                <div class="p-5 border-b border-gray-200 flex justify-between items-center">
+                    <h2 class="text-lg font-bold text-gray-900"><i class="fas fa-shopping-bag mr-2 text-rose-600"></i>Recent Orders</h2>
+                    <a href="{% url 'admin_order_list' %}" class="text-rose-600 text-sm hover:underline font-semibold">View All</a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 border-b">
+                            <tr>
+                                <th class="px-5 py-3 text-left text-sm font-semibold text-gray-700">Order</th>
+                                <th class="px-5 py-3 text-left text-sm font-semibold text-gray-700">Customer</th>
+                                <th class="px-5 py-3 text-left text-sm font-semibold text-gray-700">Total</th>
+                                <th class="px-5 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
+                                <th class="px-5 py-3 text-left text-sm font-semibold text-gray-700">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in recent_orders %}
+                            <tr class="border-b hover:bg-gray-50 transition">
+                                <td class="px-5 py-3">
+                                    <a href="{% url 'admin_order_detail' order.id %}" class="text-rose-600 font-semibold hover:underline text-sm">{{ order.order_number }}</a>
+                                </td>
+                                <td class="px-5 py-3 text-sm text-gray-800">{{ order.customer_name }}</td>
+                                <td class="px-5 py-3 font-bold text-gray-900">${{ order.total_price }}</td>
+                                <td class="px-5 py-3">
+                                    <span class="px-2 py-1 rounded-full text-xs font-semibold
+                                        {% if order.order_status == 'delivered' %}bg-green-100 text-green-800
+                                        {% elif order.order_status == 'cancelled' %}bg-red-100 text-red-800
+                                        {% else %}bg-blue-100 text-blue-800{% endif %}">
+                                        {{ order.get_order_status_display }}
+                                    </span>
+                                </td>
+                                <td class="px-5 py-3 text-xs text-gray-500">{{ order.created_at|date:"d M Y H:i" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="5" class="px-5 py-8 text-center text-gray-500">No orders yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+</body>
+</html>

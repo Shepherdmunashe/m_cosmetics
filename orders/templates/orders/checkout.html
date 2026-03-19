@@ -1,0 +1,217 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - M Cosmetics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="{% url 'product_list' %}" class="text-2xl font-bold text-rose-600">M Cosmetics</a>
+            <a href="{% url 'product_list' %}" class="text-gray-600 hover:text-rose-600 transition text-sm">
+                <i class="fas fa-arrow-left mr-1"></i>Back to Store
+            </a>
+        </div>
+    </nav>
+
+    <div class="max-w-6xl mx-auto px-4 py-10">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8"><i class="fas fa-shopping-bag mr-3 text-rose-600"></i>Checkout</h1>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mb-4 p-4 rounded-lg bg-red-100 text-red-800">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" id="checkout-form">
+            {% csrf_token %}
+            <input type="hidden" name="cart_data" id="cart-data-input">
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                <!-- Left: Customer Details + Delivery + Payment -->
+                <div class="lg:col-span-2 space-y-6">
+
+                    <!-- Customer Details -->
+                    <div class="bg-white rounded-xl shadow p-6">
+                        <h2 class="text-xl font-bold text-gray-900 mb-4"><i class="fas fa-user mr-2 text-rose-600"></i>Your Details</h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Full Name *</label>
+                                <input type="text" name="customer_name" required placeholder="Your full name"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Phone Number *</label>
+                                <input type="tel" name="phone" required placeholder="+263 7XX XXX XXX"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Email (optional)</label>
+                                <input type="email" name="email" placeholder="your@email.com"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Delivery Address</label>
+                                <input type="text" name="delivery_address" placeholder="Street / Area"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500">
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Order Notes (optional)</label>
+                            <textarea name="notes" rows="2" placeholder="Any special requests?"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Delivery Zone -->
+                    <div class="bg-white rounded-xl shadow p-6">
+                        <h2 class="text-xl font-bold text-gray-900 mb-4"><i class="fas fa-map-marker-alt mr-2 text-rose-600"></i>Delivery Zone</h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="delivery-zone-list">
+                            <label class="col-span-full flex items-center gap-3 p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-rose-400 transition has-[:checked]:border-rose-600 has-[:checked]:bg-rose-50">
+                                <input type="radio" name="delivery_zone" value="" class="text-rose-600" checked onchange="updateDelivery(null, 0, '')">
+                                <span class="flex-1">
+                                    <span class="font-semibold text-gray-900">Pick Up / No Delivery</span>
+                                    <span class="text-sm text-gray-500 ml-2">$0.00</span>
+                                </span>
+                            </label>
+                            {% for zone in zones %}
+                            <label class="flex items-center gap-3 p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-rose-400 transition has-[:checked]:border-rose-600 has-[:checked]:bg-rose-50"
+                                   data-fee="{{ zone.price }}" data-time="{{ zone.estimated_delivery_time }}">
+                                <input type="radio" name="delivery_zone" value="{{ zone.id }}" class="text-rose-600"
+                                       onchange="updateDelivery('{{ zone.area_name }}', {{ zone.price }}, '{{ zone.estimated_delivery_time }}')">
+                                <span class="flex-1">
+                                    <span class="font-semibold text-gray-900">{{ zone.area_name }}</span>
+                                    <span class="text-sm text-gray-500 ml-2">${{ zone.price }}</span>
+                                    <span class="block text-xs text-gray-400"><i class="fas fa-clock mr-1"></i>{{ zone.estimated_delivery_time }}</span>
+                                </span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Payment Method -->
+                    <div class="bg-white rounded-xl shadow p-6">
+                        <h2 class="text-xl font-bold text-gray-900 mb-4"><i class="fas fa-credit-card mr-2 text-rose-600"></i>Payment Method</h2>
+                        <div class="space-y-3">
+                            <label class="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-rose-400 transition has-[:checked]:border-rose-600 has-[:checked]:bg-rose-50">
+                                <input type="radio" name="payment_method" value="paynow" class="text-rose-600">
+                                <div>
+                                    <span class="font-semibold text-gray-900"><i class="fas fa-mobile-alt mr-2 text-blue-600"></i>Paynow</span>
+                                    <p class="text-sm text-gray-500">Pay securely via EcoCash or bank card</p>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-3 p-4 border-2 border-rose-600 bg-rose-50 rounded-lg cursor-pointer hover:border-rose-400 transition has-[:checked]:border-rose-600 has-[:checked]:bg-rose-50">
+                                <input type="radio" name="payment_method" value="cod" class="text-rose-600" checked>
+                                <div>
+                                    <span class="font-semibold text-gray-900"><i class="fas fa-money-bill-wave mr-2 text-green-600"></i>Cash on Delivery</span>
+                                    <p class="text-sm text-gray-500">Pay when your order arrives</p>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-rose-400 transition has-[:checked]:border-rose-600 has-[:checked]:bg-rose-50">
+                                <input type="radio" name="payment_method" value="whatsapp" class="text-rose-600">
+                                <div>
+                                    <span class="font-semibold text-gray-900"><i class="fab fa-whatsapp mr-2 text-green-500"></i>WhatsApp Order</span>
+                                    <p class="text-sm text-gray-500">Send order details directly to our WhatsApp</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Order Summary -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-xl shadow p-6 sticky top-24">
+                        <h2 class="text-xl font-bold text-gray-900 mb-4"><i class="fas fa-receipt mr-2 text-rose-600"></i>Order Summary</h2>
+                        <div id="checkout-items" class="space-y-3 mb-4 min-h-16">
+                            <p class="text-gray-400 text-sm text-center py-4">Loading cart...</p>
+                        </div>
+                        <div class="border-t pt-4 space-y-2">
+                            <div class="flex justify-between text-gray-700">
+                                <span>Subtotal</span>
+                                <span id="summary-subtotal">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-gray-700" id="delivery-row">
+                                <span>Delivery (<span id="delivery-zone-name">None</span>)</span>
+                                <span id="summary-delivery">$0.00</span>
+                            </div>
+                            <div class="flex justify-between items-center text-lg font-bold text-gray-900 border-t pt-2">
+                                <span>Total</span>
+                                <span id="summary-total" class="text-rose-600 text-xl">$0.00</span>
+                            </div>
+                            <p id="delivery-eta" class="text-xs text-gray-500 text-center"></p>
+                        </div>
+                        <button type="submit" id="place-order-btn"
+                            class="mt-6 w-full py-3 bg-rose-600 text-white font-bold rounded-lg hover:bg-rose-700 transition text-lg">
+                            <i class="fas fa-check-circle mr-2"></i>Place Order
+                        </button>
+                        <p class="text-xs text-gray-400 text-center mt-3">Your order details will be confirmed via WhatsApp</p>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let deliveryFee = 0;
+        let deliveryZoneName = 'None';
+
+        function updateDelivery(name, fee, eta) {
+            deliveryFee = parseFloat(fee) || 0;
+            deliveryZoneName = name || 'None';
+            document.getElementById('delivery-zone-name').textContent = deliveryZoneName;
+            document.getElementById('summary-delivery').textContent = `$${deliveryFee.toFixed(2)}`;
+            document.getElementById('delivery-eta').textContent = eta ? `Estimated: ${eta}` : '';
+            recalcTotal();
+        }
+
+        function recalcTotal() {
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            const subtotal = cart.reduce((s, i) => s + parseFloat(i.price) * parseInt(i.quantity), 0);
+            document.getElementById('summary-subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('summary-total').textContent = `$${(subtotal + deliveryFee).toFixed(2)}`;
+        }
+
+        function loadCart() {
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            const container = document.getElementById('checkout-items');
+            if (cart.length === 0) {
+                container.innerHTML = '<p class="text-gray-400 text-sm text-center py-4">Your cart is empty. <a href="/" class="text-rose-600 underline">Shop now</a></p>';
+                document.getElementById('place-order-btn').disabled = true;
+                return;
+            }
+            container.innerHTML = cart.map(item => `
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-gray-800 font-medium flex-1 mr-2">${item.name}</span>
+                    <span class="text-gray-500 mr-3">x${item.quantity}</span>
+                    <span class="font-semibold text-rose-600">$${(parseFloat(item.price) * parseInt(item.quantity)).toFixed(2)}</span>
+                </div>
+            `).join('');
+            recalcTotal();
+        }
+
+        document.getElementById('checkout-form').addEventListener('submit', function(e) {
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            if (cart.length === 0) {
+                e.preventDefault();
+                alert('Your cart is empty!');
+                return;
+            }
+            document.getElementById('cart-data-input').value = JSON.stringify(cart);
+        });
+
+        // Listen for order confirmation to clear cart (on return from server)
+        if (window.location.search.includes('clear_cart=1')) {
+            localStorage.removeItem('cart');
+        }
+
+        document.addEventListener('DOMContentLoaded', loadCart);
+    </script>
+</body>
+</html>

@@ -1,19 +1,7 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us - M Cosmetics</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .navbar-sticky {
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
+{% extends 'store/base.html' %}
+{% block title %}About Us{% endblock %}
+
+{% block style %}
         .about-image-frame {
             position: relative;
         }
@@ -28,52 +16,9 @@
             border-radius: 12px;
             z-index: -1;
         }
-    </style>
-</head>
-<body class="bg-gray-50">
-    <!-- Sticky Navbar -->
-    <nav class="navbar-sticky bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <!-- Logo -->
-                <div class="flex items-center">
-                    <a href="{% url 'product_list' %}" class="text-2xl font-bold text-rose-600 hover:text-rose-700 transition">M Cosmetics</a>
-                </div>
+{% endblock %}
 
-                <!-- Nav Items -->
-                <div class="hidden md:flex space-x-8">
-                    <a href="{% url 'product_list' %}" class="text-gray-700 hover:text-rose-600 transition">Home</a>
-                    <a href="{% url 'product_list' %}" class="text-gray-700 hover:text-rose-600 transition">Shop</a>
-                    <a href="{% url 'about' %}" class="text-gray-700 hover:text-rose-600 transition font-semibold">About</a>
-                    <a href="{% url 'contact' %}" class="text-gray-700 hover:text-rose-600 transition">Contact</a>
-                </div>
-
-                <!-- Right Side: User & Cart -->
-                <div class="flex items-center space-x-4">
-                    {% if user.is_authenticated %}
-                        <!-- User Greeting -->
-                        <div class="hidden md:flex items-center space-x-2">
-                            <i class="fas fa-user text-rose-600"></i>
-                            <span class="text-sm text-gray-700">{{ user.first_name|default:user.username }}</span>
-                        </div>
-                        <!-- Logout Button -->
-                        <a href="{% url 'logout' %}" class="text-gray-700 hover:text-red-600 transition text-sm font-semibold">
-                            <i class="fas fa-sign-out-alt mr-1"></i>Logout
-                        </a>
-                    {% else %}
-                        <!-- Login/Register Buttons -->
-                        <a href="{% url 'login' %}" class="text-gray-700 hover:text-rose-600 transition text-sm font-semibold">
-                            <i class="fas fa-sign-in-alt mr-1"></i>Login
-                        </a>
-                        <a href="{% url 'register' %}" class="bg-rose-600 text-white px-4 py-2 rounded-lg hover:bg-rose-700 transition text-sm">
-                            <i class="fas fa-user-plus mr-1"></i>Register
-                        </a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </nav>
-
+{% block content %}
     <!-- Hero Section -->
     <section class="bg-white">
         <div class="max-w-4xl mx-auto text-center py-16 px-4">
@@ -214,13 +159,5 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-gray-300 mt-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div class="text-center">
-                <p>&copy; 2025 M Cosmetics. All rights reserved. | Bringing premium self-care to Zimbabwe</p>
-            </div>
-        </div>
-    </footer>
-</body>
-</html>
+{% endblock %}
+

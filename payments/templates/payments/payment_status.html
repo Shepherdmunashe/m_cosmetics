@@ -1,0 +1,26 @@
+{% extends 'store/base.html' %}
+{% block title %}Payment Status{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto px-4 py-16 text-center">
+    <div class="bg-white rounded-2xl shadow-lg p-10">
+        {% if payment and payment.status == 'paid' %}
+        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-check text-green-600 text-4xl"></i>
+        </div>
+        <h1 class="text-2xl font-bold text-green-700 mb-2">Payment Confirmed!</h1>
+        {% else %}
+        <div class="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-clock text-yellow-600 text-4xl"></i>
+        </div>
+        <h1 class="text-2xl font-bold text-yellow-700 mb-2">Payment Pending</h1>
+        <p class="text-gray-500 mb-2 text-sm">Waiting for payment confirmation from Paynow.</p>
+        <button onclick="location.reload()" class="mb-6 text-sm text-rose-600 underline">Refresh Status</button>
+        {% endif %}
+        <p class="text-gray-600 mb-6">Order: <strong>{{ order.order_number }}</strong> — ${{ order.total_price }}</p>
+        <a href="{% url 'order_confirmation' order.id %}"
+           class="block w-full py-3 bg-rose-600 text-white font-bold rounded-xl hover:bg-rose-700 transition">
+            View Order
+        </a>
+    </div>
+</div>
+{% endblock %}

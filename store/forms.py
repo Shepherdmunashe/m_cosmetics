@@ -1,7 +1,15 @@
 from django import forms # type: ignore
 from django.contrib.auth.models import User # type: ignore
 from django.contrib.auth.forms import UserCreationForm # type: ignore
-from .models import Product # type: ignore
+from django.core.validators import FileExtensionValidator # type: ignore
+from django.core.exceptions import ValidationError # type: ignore
+from .models import Product, Category # type: ignore
+
+MAX_IMAGE_SIZE_MB = 5
+
+def validate_image_size(image):
+    if image.size > MAX_IMAGE_SIZE_MB * 1024 * 1024:
+        raise ValidationError(f'Image file size must be under {MAX_IMAGE_SIZE_MB}MB.')
 
 
 class UserRegistrationForm(UserCreationForm):
@@ -58,13 +66,28 @@ class UserLoginForm(forms.Form):
 
 
 class ProductForm(forms.ModelForm):
+    image = forms.ImageField(
+        required=False,
+        validators=[
+            FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'webp']),
+            validate_image_size,
+        ],
+        widget=forms.FileInput(attrs={
+            'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-600',
+            'accept': 'image/jpeg,image/png,image/webp'
+        })
+    )
+
     class Meta:
         model = Product
-        fields = ['name', 'description', 'price', 'image', 'in_stock']
+        fields = ['name', 'category', 'description', 'price', 'image', 'stock_quantity', 'low_stock_threshold', 'in_stock']
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-600',
                 'placeholder': 'Product Name'
+            }),
+            'category': forms.Select(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-600'
             }),
             'description': forms.Textarea(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-600',
@@ -76,10 +99,30 @@ class ProductForm(forms.ModelForm):
                 'placeholder': 'Price',
                 'step': '0.01'
             }),
-            'image': forms.FileInput(attrs={
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-600'
+            'stock_quantity': forms.NumberInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-600',
+                'placeholder': 'Units in stock',
+                'min': '0'
+            }),
+            'low_stock_threshold': forms.NumberInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-600',
+                'placeholder': 'Alert threshold (e.g. 5)',
+                'min': '0'
             }),
             'in_stock': forms.CheckboxInput(attrs={
                 'class': 'w-4 h-4 text-rose-600 border-gray-300 rounded focus:ring-rose-600'
             })
         }
+
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-600',
+                'placeholder': 'Category Name'
+            })
+        }
+
