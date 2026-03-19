@@ -1,0 +1,259 @@
+[
+{
+  "model": "store.category",
+  "pk": 1,
+  "fields": {
+    "name": "Mists",
+    "slug": "mists"
+  }
+},
+{
+  "model": "store.category",
+  "pk": 2,
+  "fields": {
+    "name": "Body Lotion",
+    "slug": "body-lotion"
+  }
+},
+{
+  "model": "store.category",
+  "pk": 3,
+  "fields": {
+    "name": "Gift Sets",
+    "slug": "gift-sets"
+  }
+},
+{
+  "model": "store.category",
+  "pk": 4,
+  "fields": {
+    "name": "Hand cream",
+    "slug": "hand-cream"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 5,
+  "fields": {
+    "category": null,
+    "name": "Crystal Eye Palette",
+    "description": "12-shade eyeshadow palette with shimmering and matte finishes. Highly pigmented and blendable.",
+    "price": "44.99",
+    "image": "",
+    "in_stock": true,
+    "stock_quantity": 0,
+    "low_stock_threshold": 5,
+    "created_at": "2025-12-29T12:47:47.008Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 10,
+  "fields": {
+    "category": 3,
+    "name": "Into The Night",
+    "description": "This set include body lotion and body mist",
+    "price": "30.00",
+    "image": "products/into_the_night.png.jpg",
+    "in_stock": true,
+    "stock_quantity": 0,
+    "low_stock_threshold": 5,
+    "created_at": "2025-12-29T22:05:05.773Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 11,
+  "fields": {
+    "category": 3,
+    "name": "Endless Sea",
+    "description": "A peaceful vacation in a bottle. Fresh bergamot, saltwater lily, and ocean driftwood",
+    "price": "30.00",
+    "image": "products/Endless_sea.jpeg",
+    "in_stock": true,
+    "stock_quantity": 0,
+    "low_stock_threshold": 5,
+    "created_at": "2025-12-31T13:16:21.396Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 12,
+  "fields": {
+    "category": 3,
+    "name": "Gingham Gorgeous",
+    "description": "Fresh, vibrant, and happy. A crisp blend of blue freesia, white peach, and fresh clementine.",
+    "price": "50.00",
+    "image": "products/gingham_gorgeous.jpeg",
+    "in_stock": true,
+    "stock_quantity": 0,
+    "low_stock_threshold": 5,
+    "created_at": "2025-12-31T13:19:24.456Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 13,
+  "fields": {
+    "category": 3,
+    "name": "Snowflakes & cashmere",
+    "description": "Cozy up with this soft blend of vanilla cashmere cream, caramel woods, and frosted clementine",
+    "price": "25.00",
+    "image": "products/snowflakes__cashmere.jpeg",
+    "in_stock": true,
+    "stock_quantity": 0,
+    "low_stock_threshold": 5,
+    "created_at": "2025-12-31T13:21:13.974Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 15,
+  "fields": {
+    "category": 3,
+    "name": "Pure Wonder",
+    "description": "A dreamy, warm blend of iced rosé, star jasmine, and warm white amber. Smells like a luxury perfume.",
+    "price": "80.00",
+    "image": "products/pure_wonder.jpeg",
+    "in_stock": true,
+    "stock_quantity": 0,
+    "low_stock_threshold": 5,
+    "created_at": "2025-12-31T13:22:35.188Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 16,
+  "fields": {
+    "category": 3,
+    "name": "Luminous",
+    "description": "Radiant and decadent. A luxurious blend of ruby currant, gilded iris, and praline amber",
+    "price": "60.00",
+    "image": "products/luminous.jpeg",
+    "in_stock": true,
+    "stock_quantity": 0,
+    "low_stock_threshold": 5,
+    "created_at": "2025-12-31T13:24:07.884Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 17,
+  "fields": {
+    "category": 3,
+    "name": "In The Stars",
+    "description": "Make every moment glow with this warm, captivating scent. A mix of starflower, sandalwood musk, and sugared tangelo.",
+    "price": "50.00",
+    "image": "products/in_the_stars.jpeg",
+    "in_stock": true,
+    "stock_quantity": 0,
+    "low_stock_threshold": 5,
+    "created_at": "2025-12-31T13:26:03.144Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 18,
+  "fields": {
+    "category": 3,
+    "name": "Rose",
+    "description": "Clean, playful, and light. A modern mix of airy rose water, jasmine petals, and creamy musk",
+    "price": "50.00",
+    "image": "products/rose.jpeg",
+    "in_stock": true,
+    "stock_quantity": 0,
+    "low_stock_threshold": 5,
+    "created_at": "2025-12-31T13:28:19.612Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 19,
+  "fields": {
+    "category": 3,
+    "name": "Platinum",
+    "description": "A mesmerizing, metallic vibe you can't help but be drawn to. A bold blend of sparkling bergamot, silver blooms, and patchouli musk. Modern, magnetic, and clean.",
+    "price": "70.00",
+    "image": "products/platinum.jpeg",
+    "in_stock": true,
+    "stock_quantity": 0,
+    "low_stock_threshold": 5,
+    "created_at": "2025-12-31T13:34:48.696Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 20,
+  "fields": {
+    "category": 3,
+    "name": "Japanese Cherry Blossom",
+    "description": "The world's most iconic fragrance. A graceful blend of Japanese cherry blossoms, Asian pear, and sandalwood. Timeless and elegant.",
+    "price": "80.00",
+    "image": "products/japanese_cherry_blossom.jpeg",
+    "in_stock": true,
+    "stock_quantity": 0,
+    "low_stock_threshold": 5,
+    "created_at": "2025-12-31T13:36:13.723Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 21,
+  "fields": {
+    "category": 3,
+    "name": "Hello Beautiful",
+    "description": "A petal-perfect blend of white gardenia, jasmine petals, and magnolia blossom. Like walking through a fresh flower garden.",
+    "price": "65.00",
+    "image": "products/hello_beautiful.jpeg",
+    "in_stock": true,
+    "stock_quantity": 0,
+    "low_stock_threshold": 5,
+    "created_at": "2025-12-31T13:37:33.936Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 22,
+  "fields": {
+    "category": 3,
+    "name": "Bourbon",
+    "description": "A bold, smooth blend of white pepper, dark amber, and Kentucky oak.",
+    "price": "65.00",
+    "image": "products/Bourbon.jpeg",
+    "in_stock": true,
+    "stock_quantity": 3,
+    "low_stock_threshold": 2,
+    "created_at": "2025-12-31T13:40:09.065Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 23,
+  "fields": {
+    "category": 3,
+    "name": "Mahogany Teakwood",
+    "description": "The classic woodsy scent. Rich mahogany, black teakwood, and dark oak. Smells like a high-end men's cologne.",
+    "price": "65.00",
+    "image": "products/mahogany_teakwood.jpeg",
+    "in_stock": true,
+    "stock_quantity": 0,
+    "low_stock_threshold": 5,
+    "created_at": "2025-12-31T13:41:26.612Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 24,
+  "fields": {
+    "category": 3,
+    "name": "Meet Me in Miami",
+    "description": "A sunny escape to South Beach. A refreshing, sun-drenched blend of breezy palm trees, cabana coladas, and sun-tanned skin. Smells like a luxury vacation in a bottle.",
+    "price": "30.00",
+    "image": "products/meet_me_in_miami.jpeg",
+    "in_stock": false,
+    "stock_quantity": 3,
+    "low_stock_threshold": 2,
+    "created_at": "2025-12-31T13:44:30.049Z"
+  }
+}
+]

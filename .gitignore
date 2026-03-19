@@ -4,4 +4,5 @@ __pycache__/
 *.pyc
 .env
 staticfiles/
-media/
+media/*
+!media/products/
