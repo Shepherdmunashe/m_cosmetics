@@ -1,8 +1,29 @@
 import json
-from django.http import JsonResponse
+from django.conf import settings
+from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from .services import WhatsAppService
 from delivery.services import DeliveryCalculator
+
+
+@csrf_exempt
+def webhook(request):
+    """Meta webhook: GET = verification challenge, POST = incoming messages."""
+    if request.method == 'GET':
+        mode = request.GET.get('hub.mode')
+        token = request.GET.get('hub.verify_token')
+        challenge = request.GET.get('hub.challenge')
+
+        if mode == 'subscribe' and token == settings.WA_VERIFY_TOKEN:
+            return HttpResponse(challenge, content_type='text/plain')
+        return HttpResponseForbidden('Verification failed')
+
+    if request.method == 'POST':
+        # Incoming message events — handle as needed
+        return HttpResponse('OK', status=200)
+
+    return HttpResponseForbidden()
 
 
 @require_POST
